@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Financeiro | RR Reparação Manager</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body data-page="financeiro">
   <div class="app-shell">
@@ -90,7 +90,7 @@
         <p class="report-status" id="financeiroRelatorioStatus"></p>
         <div class="report-grid" id="financeiroRelatorioResumo"></div>
         <div class="finance-charts" id="financeiroGraficos">
-          <div class="chart-box">
+          <div class="chart-box distribution-card">
             <div class="chart-heading">
               <h3>Distribuição do período</h3>
               <span>Receitas x custos x despesas</span>
@@ -98,10 +98,10 @@
             <div class="donut-chart" id="financeiroDonut"></div>
             <div class="chart-legend" id="financeiroLegenda"></div>
           </div>
-          <div class="chart-box">
+          <div class="chart-box monthly-card">
             <div class="chart-heading">
               <h3>Evolução mensal</h3>
-              <span>Lucro por mês</span>
+              <span>Receitas, custos, despesas e lucro</span>
             </div>
             <div class="bar-chart" id="financeiroBarras"></div>
           </div>
@@ -128,8 +128,8 @@
       </section>
     </main>
   </div>
-  <script src="script.js?v=6"></script>
-  <script src="firebase-config.js?v=6"></script>
-  <script type="module" src="firebase-sync.js?v=6"></script>
+  <script src="script.js?v=7"></script>
+  <script src="firebase-config.js?v=7"></script>
+  <script type="module" src="firebase-sync.js?v=7"></script>
 </body>
 </html>

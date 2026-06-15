@@ -925,23 +925,48 @@ function renderFinanceiroGraficos(relatorio) {
   byId("financeiroDonut").style.background = totalDonut
     ? `conic-gradient(${segmentos})`
     : "conic-gradient(rgba(255,255,255,0.12) 0deg 360deg)";
-  byId("financeiroDonut").innerHTML = `<span>${money(resumo.lucro)}<small>Lucro</small></span>`;
+  byId("financeiroDonut").innerHTML = `<span>${money(resumo.lucro)}<small>Lucro líquido</small></span>`;
   byId("financeiroLegenda").innerHTML = valoresDonut.map((item) => `
-    <div><i style="background:${item.color}"></i><span>${item.label}</span><strong>${money(item.valor)}</strong></div>
+    <div>
+      <i style="background:${item.color}"></i>
+      <span>${item.label}</span>
+      <strong>${money(item.valor)}</strong>
+    </div>
   `).join("");
 
-  const maiorLucro = Math.max(...meses.map((mes) => Math.abs(mes.lucro)), 1);
-  byId("financeiroBarras").innerHTML = meses.length ? meses.map((mes) => {
-    const altura = Math.max(8, Math.round((Math.abs(mes.lucro) / maiorLucro) * 150));
-    const classe = mes.lucro >= 0 ? "positive" : "negative";
-    return `
-      <div class="bar-item">
-        <div class="bar-value">${money(mes.lucro)}</div>
-        <div class="bar-track"><span class="${classe}" style="height:${altura}px"></span></div>
-        <strong>${escapeHtml(mes.label)}</strong>
-      </div>
-    `;
-  }).join("") : `<div class="chart-empty">Sem dados para gráfico neste período.</div>`;
+  const series = [
+    { key: "receitas", label: "Receitas", colorClass: "income" },
+    { key: "custos", label: "Custos", colorClass: "cost" },
+    { key: "despesas", label: "Despesas", colorClass: "expense" },
+    { key: "lucro", label: "Lucro", colorClass: "profit" }
+  ];
+  const maiorValor = Math.max(
+    ...meses.flatMap((mes) => series.map((serie) => Math.abs(mes[serie.key]) || 0)),
+    1
+  );
+
+  byId("financeiroBarras").innerHTML = meses.length ? `
+    <div class="bar-legend">
+      ${series.map((serie) => `<span><i class="${serie.colorClass}"></i>${serie.label}</span>`).join("")}
+    </div>
+    <div class="monthly-bars">
+      ${meses.map((mes) => {
+        const bars = series.map((serie) => {
+          const value = Number(mes[serie.key]) || 0;
+          const altura = value === 0 ? 4 : Math.max(12, Math.round((Math.abs(value) / maiorValor) * 150));
+          const negative = value < 0 ? " negative" : "";
+          return `<span class="${serie.colorClass}${negative}" style="height:${altura}px" title="${serie.label}: ${money(value)}"></span>`;
+        }).join("");
+        return `
+          <div class="month-group">
+            <div class="month-bars">${bars}</div>
+            <strong>${escapeHtml(mes.label)}</strong>
+            <small>${money(mes.lucro)}</small>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  ` : `<div class="chart-empty">Sem dados para gráfico neste período.</div>`;
 }
 
 function imprimirRelatorioFinanceiro() {
