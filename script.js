@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "orcamentos") initOrcamentos();
   if (page === "financeiro") initFinanceiro();
   if (page === "orcamento-print") initOrcamentoPrint();
+  if (page === "financeiro-print") initFinanceiroPrint();
 });
 
 function readData(type) {
@@ -843,9 +844,9 @@ function getLancamentoImpacto(item) {
   return { receitas: 0, custos: 0, despesas: Number(item.valor) || 0 };
 }
 
-function getFinanceiroRelatorioData() {
-  const start = getValue("relatorioInicio");
-  const end = getValue("relatorioFim");
+function getFinanceiroRelatorioData(startOverride = null, endOverride = null) {
+  const start = startOverride ?? getValue("relatorioInicio");
+  const end = endOverride ?? getValue("relatorioFim");
   const lancamentos = getFinanceiroLancamentos().filter((item) => isDateInRange(item.data, start, end));
   const resumo = lancamentos.reduce((acc, item) => {
     const impacto = getLancamentoImpacto(item);
@@ -970,61 +971,120 @@ function renderFinanceiroGraficos(relatorio) {
 }
 
 function imprimirRelatorioFinanceiro() {
-  const relatorio = ultimoRelatorioFinanceiro || getFinanceiroRelatorioData();
+  const params = new URLSearchParams();
+  const start = getValue("relatorioInicio");
+  const end = getValue("relatorioFim");
+  if (start) params.set("inicio", start);
+  if (end) params.set("fim", end);
+  window.location.href = `relatorio-financeiro.html${params.toString() ? `?${params}` : ""}`;
+}
+
+function initFinanceiroPrint() {
+  const root = byId("printRoot");
+  const printButton = byId("printButton");
+  const params = new URLSearchParams(window.location.search);
+  const start = params.get("inicio") || "";
+  const end = params.get("fim") || "";
+  const relatorio = getFinanceiroRelatorioData(start, end);
+
+  if (printButton) printButton.addEventListener("click", () => window.print());
+  root.innerHTML = buildFinanceiroReportHtml(relatorio);
+}
+
+function buildFinanceiroReportHtml(relatorio) {
   const { start, end, resumo, meses, lancamentos } = relatorio;
   const periodo = start || end
     ? `${formatDateBR(start) || "Início"} até ${formatDateBR(end) || "hoje"}`
     : "Todo o histórico financeiro";
-  const linhasMes = meses.map((mes) => `
-    <tr><td>${escapeHtml(mes.label)}</td><td>${money(mes.receitas)}</td><td>${money(mes.custos)}</td><td>${money(mes.despesas)}</td><td>${money(mes.lucro)}</td></tr>
-  `).join("") || `<tr><td colspan="5">Sem lançamentos no período.</td></tr>`;
-  const linhasLancamentos = lancamentos.map((item) => `
-    <tr><td>${escapeHtml(formatDateBR(item.data))}</td><td>${escapeHtml(item.tipo)}</td><td>${escapeHtml(item.descricao)}</td><td>${escapeHtml(item.categoria || "-")}</td><td>${money(item.valor)}</td></tr>
-  `).join("") || `<tr><td colspan="5">Sem lançamentos no período.</td></tr>`;
+  const logoUrl = "assets/logo-rr.png";
+  const valoresDonut = [
+    { label: "Receitas", valor: resumo.receitas, color: "#4fd1a1" },
+    { label: "Custos", valor: resumo.custos, color: "#f1c75b" },
+    { label: "Despesas", valor: resumo.despesas, color: "#ef6262" }
+  ];
+  const totalDonut = valoresDonut.reduce((sum, item) => sum + Math.max(item.valor, 0), 0);
+  let acumulado = 0;
+  const segmentos = valoresDonut.map((item) => {
+    const inicio = totalDonut ? (acumulado / totalDonut) * 360 : 0;
+    acumulado += Math.max(item.valor, 0);
+    const fim = totalDonut ? (acumulado / totalDonut) * 360 : 0;
+    return `${item.color} ${inicio}deg ${fim}deg`;
+  }).join(", ");
+  const series = [
+    { key: "receitas", label: "Receitas", className: "income" },
+    { key: "custos", label: "Custos", className: "cost" },
+    { key: "despesas", label: "Despesas", className: "expense" },
+    { key: "lucro", label: "Lucro", className: "profit" }
+  ];
+  const maiorValor = Math.max(
+    ...meses.flatMap((mes) => series.map((serie) => Math.abs(mes[serie.key]) || 0)),
+    1
+  );
 
-  const printWindow = window.open("", "_blank");
-  if (!printWindow) {
-    alert("Permita pop-ups para gerar o PDF do relatório.");
-    return;
-  }
+  return `
+    <article class="finance-report-document">
+      <header class="print-header report-print-header">
+        <img src="${logoUrl}" alt="RR Reparação Automotiva">
+        <div>
+          <h1>RR Reparação Manager</h1>
+          <p>Relatório financeiro</p>
+          <p>Período: <strong>${escapeHtml(periodo)}</strong></p>
+        </div>
+      </header>
 
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-      <meta charset="UTF-8">
-      <title>Relatório Financeiro | RR Reparação Manager</title>
-      <style>
-        body { font-family: Arial, sans-serif; color: #111827; margin: 32px; }
-        header { display: flex; align-items: center; gap: 16px; border-bottom: 3px solid #d7a63a; padding-bottom: 16px; margin-bottom: 22px; }
-        img { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; }
-        h1, h2 { color: #082f57; margin: 0 0 8px; }
-        .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 18px 0; }
-        .card { border: 1px solid #d8dee8; border-radius: 8px; padding: 12px; }
-        .card span { color: #526174; font-size: 12px; display: block; }
-        .card strong { display: block; margin-top: 8px; font-size: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
-        th { background: #082f57; color: #fff; text-align: left; }
-        th, td { border: 1px solid #d8dee8; padding: 8px; }
-        section { margin-top: 22px; }
-        @media print { body { margin: 18mm; } }
-      </style>
-    </head>
-    <body>
-      <header><img src="assets/logo-rr.png" alt="RR"><div><h1>RR Reparação Manager</h1><p>Relatório financeiro - ${escapeHtml(periodo)}</p></div></header>
-      <div class="cards">
-        <div class="card"><span>Receitas</span><strong>${money(resumo.receitas)}</strong></div>
-        <div class="card"><span>Custos</span><strong>${money(resumo.custos)}</strong></div>
-        <div class="card"><span>Despesas</span><strong>${money(resumo.despesas)}</strong></div>
-        <div class="card"><span>Lucro</span><strong>${money(resumo.lucro)}</strong></div>
-      </div>
-      <section><h2>Resultado por mês</h2><table><thead><tr><th>Mês</th><th>Receitas</th><th>Custos</th><th>Despesas</th><th>Lucro</th></tr></thead><tbody>${linhasMes}</tbody></table></section>
-      <section><h2>Lançamentos analisados</h2><table><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Categoria</th><th>Valor</th></tr></thead><tbody>${linhasLancamentos}</tbody></table></section>
-      <script>window.onload = () => { window.print(); };</script>
-    </body>
-    </html>
-  `);
-  printWindow.document.close();
+      <section class="report-print-summary">
+        <div><span>Receitas</span><strong>${money(resumo.receitas)}</strong></div>
+        <div><span>Custos</span><strong>${money(resumo.custos)}</strong></div>
+        <div><span>Despesas</span><strong>${money(resumo.despesas)}</strong></div>
+        <div class="highlight"><span>Lucro</span><strong>${money(resumo.lucro)}</strong></div>
+      </section>
+
+      <section class="report-print-charts">
+        <div class="report-chart-card">
+          <h2>Distribuição do período</h2>
+          <div class="report-donut" style="background:${totalDonut ? `conic-gradient(${segmentos})` : "#edf2f7"}">
+            <span>${money(resumo.lucro)}<small>Lucro líquido</small></span>
+          </div>
+          <div class="report-legend">
+            ${valoresDonut.map((item) => `<div><i style="background:${item.color}"></i><span>${item.label}</span><strong>${money(item.valor)}</strong></div>`).join("")}
+          </div>
+        </div>
+
+        <div class="report-chart-card">
+          <h2>Evolução mensal</h2>
+          <div class="report-bars-legend">
+            ${series.map((serie) => `<span><i class="${serie.className}"></i>${serie.label}</span>`).join("")}
+          </div>
+          <div class="report-monthly-bars">
+            ${meses.length ? meses.map((mes) => {
+              const bars = series.map((serie) => {
+                const value = Number(mes[serie.key]) || 0;
+                const altura = value === 0 ? 4 : Math.max(10, Math.round((Math.abs(value) / maiorValor) * 130));
+                return `<span class="${serie.className}" style="height:${altura}px" title="${serie.label}: ${money(value)}"></span>`;
+              }).join("");
+              return `<div class="report-month-group"><div>${bars}</div><strong>${escapeHtml(mes.label)}</strong><small>${money(mes.lucro)}</small></div>`;
+            }).join("") : `<p class="muted">Sem dados no período.</p>`}
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Resultado por mês</h2>
+        <table class="print-table">
+          <thead><tr><th>Mês</th><th>Receitas</th><th>Custos</th><th>Despesas</th><th>Lucro</th></tr></thead>
+          <tbody>${meses.map((mes) => `<tr><td>${escapeHtml(mes.label)}</td><td>${money(mes.receitas)}</td><td>${money(mes.custos)}</td><td>${money(mes.despesas)}</td><td>${money(mes.lucro)}</td></tr>`).join("") || `<tr><td colspan="5">Sem lançamentos no período.</td></tr>`}</tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Lançamentos analisados</h2>
+        <table class="print-table">
+          <thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Categoria</th><th>Valor</th></tr></thead>
+          <tbody>${lancamentos.map((item) => `<tr><td>${escapeHtml(formatDateBR(item.data))}</td><td>${escapeHtml(item.tipo)}</td><td>${escapeHtml(item.descricao)}</td><td>${escapeHtml(item.categoria || "-")}</td><td>${money(item.valor)}</td></tr>`).join("") || `<tr><td colspan="5">Sem lançamentos no período.</td></tr>`}</tbody>
+        </table>
+      </section>
+    </article>
+  `;
 }
 
 function editFinanceiro(id) {
