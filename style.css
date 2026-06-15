@@ -606,7 +606,7 @@ td {
   box-shadow: var(--shadow);
 }
 
-.auth-ready #firebaseUserBar {
+.auth-ready.firebase-logged-in #firebaseUserBar {
   display: flex;
 }
 

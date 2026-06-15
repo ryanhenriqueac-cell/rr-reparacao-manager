@@ -30,7 +30,7 @@ buildAuthShell();
 
 if (!configReady) {
   showAuthMessage("Configure o Firebase em firebase-config.js para ativar login e banco online.");
-  setAppLocked(false);
+  setAppLocked(true);
 } else {
   const app = initializeApp(config);
   auth = getAuth(app);
@@ -184,6 +184,7 @@ function setAppLocked(locked) {
 function setUserStatus(email) {
   const status = document.getElementById("firebaseUserStatus");
   if (status) status.textContent = email ? `Online: ${email}` : "";
+  document.body.classList.toggle("firebase-logged-in", Boolean(email));
 }
 
 function showAuthMessage(message) {
