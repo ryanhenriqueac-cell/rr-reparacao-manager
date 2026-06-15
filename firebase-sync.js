@@ -204,5 +204,5 @@ function firebaseError(error) {
   if (code.includes("auth/email-already-in-use")) return "Este e-mail já tem acesso.";
   if (code.includes("auth/weak-password")) return "Use uma senha com pelo menos 6 caracteres.";
   if (code.includes("permission-denied")) return "Sem permissão no Firestore. Confira as regras de segurança.";
-  return `Erro no Firebase: ${code || "sem código"}.`;
+  return `Erro no Firebase: ${code || error?.message || "sem código"}.`;
 }
