@@ -194,9 +194,15 @@ function showAuthMessage(message) {
 
 function firebaseError(error) {
   const code = error?.code || "";
+  console.error("Firebase error:", error);
+  if (code.includes("auth/unauthorized-domain")) return "Domínio não autorizado. Adicione ryanhenriqueac-cell.github.io no Firebase Authentication.";
+  if (code.includes("auth/operation-not-allowed")) return "E-mail/senha não está ativo no Firebase Authentication.";
+  if (code.includes("auth/network-request-failed")) return "Falha de internet ao conectar no Firebase.";
+  if (code.includes("auth/invalid-api-key")) return "Chave apiKey inválida no firebase-config.js.";
+  if (code.includes("auth/configuration-not-found")) return "Configuração de autenticação não encontrada no Firebase.";
   if (code.includes("auth/invalid-credential")) return "E-mail ou senha inválidos.";
   if (code.includes("auth/email-already-in-use")) return "Este e-mail já tem acesso.";
   if (code.includes("auth/weak-password")) return "Use uma senha com pelo menos 6 caracteres.";
   if (code.includes("permission-denied")) return "Sem permissão no Firestore. Confira as regras de segurança.";
-  return "Erro no Firebase. Verifique configuração, internet e regras.";
+  return `Erro no Firebase: ${code || "sem código"}.`;
 }
