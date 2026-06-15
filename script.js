@@ -26,7 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
   migrateLegacyData();
   setActiveMenu();
   bindClearButtons();
-  bindBackupTools();
 
   if (page === "dashboard") initDashboard();
   if (page === "clientes") initClientes();
@@ -176,72 +175,6 @@ function bindClearButtons() {
       }
     });
   });
-}
-
-function bindBackupTools() {
-  const exportButton = byId("exportBackup");
-  const importInput = byId("importBackup");
-
-  if (exportButton) exportButton.addEventListener("click", exportBackup);
-  if (importInput) importInput.addEventListener("change", importBackup);
-}
-
-function exportBackup() {
-  const backup = {
-    app: "RR Reparação Manager",
-    version: 2,
-    exportedAt: new Date().toISOString(),
-    data: {
-      clientes: readData("clientes"),
-      veiculos: readData("veiculos"),
-      servicos: readData("servicos"),
-      orcamentos: readData("orcamentos"),
-      financeiro: readData("financeiro")
-    }
-  };
-
-  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `rr-reparacao-backup-${today()}.json`;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-function importBackup(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      const backup = JSON.parse(reader.result);
-      const data = backup.data || backup;
-      const validBackup = ["clientes", "servicos", "orcamentos", "financeiro"].every((key) => Array.isArray(data[key]));
-
-      if (!validBackup) {
-        alert("Arquivo de backup inválido.");
-        return;
-      }
-
-      const confirmed = confirm("Importar este backup vai substituir os dados atuais deste navegador. Deseja continuar?");
-      if (!confirmed) return;
-
-      writeData("clientes", data.clientes || []);
-      writeData("veiculos", data.veiculos || []);
-      writeData("servicos", data.servicos || []);
-      writeData("orcamentos", data.orcamentos || []);
-      writeData("financeiro", data.financeiro || []);
-      alert("Backup importado com sucesso.");
-      window.location.reload();
-    } catch (error) {
-      alert("Não foi possível ler este arquivo de backup.");
-    } finally {
-      event.target.value = "";
-    }
-  };
-  reader.readAsText(file);
 }
 
 function fillSelect(id, items, placeholder, getLabel) {

@@ -43,9 +43,7 @@ No financeiro você lança apenas despesas manuais. O sistema calcula:
 
 ## Onde os dados ficam salvos
 
-O sistema ainda mantém uma cópia local no LocalStorage do navegador, mas agora também pode sincronizar com Firebase quando o login estiver configurado.
-
-Antes de limpar o navegador, trocar de computador ou publicar uma nova versão, continue usando a opção de backup no dashboard como segurança extra.
+O sistema mantém uma cópia local no LocalStorage do navegador e sincroniza com Firebase quando o login está configurado.
 
 ## Firebase
 
@@ -75,12 +73,6 @@ service cloud.firestore {
 
 Com isso, cada usuário logado acessa apenas o próprio banco de dados.
 
-## Backup
-
-No dashboard, use:
-
-- `Exportar backup`: baixa um arquivo `.json` com os dados.
-- `Importar backup`: restaura um arquivo `.json` exportado anteriormente.
 
 ## Próximos passos recomendados
 

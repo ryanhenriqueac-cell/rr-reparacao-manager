@@ -408,29 +408,6 @@ td {
   font-size: 24px;
 }
 
-.backup-panel {
-  max-width: 860px;
-}
-
-.backup-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.backup-import {
-  position: relative;
-  overflow: hidden;
-}
-
-.backup-import input {
-  position: absolute;
-  inset: 0;
-  cursor: pointer;
-  opacity: 0;
-}
-
 .nested-section {
   padding: 16px;
   border: 1px solid var(--line);
