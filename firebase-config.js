@@ -1,5 +1,5 @@
 window.firebaseConfig = {
-  apiKey: "AIzaSyBKXag3Gf3MM-0uLAU7CixAdlhJurY1BUQ",
+  apiKey: "AIzaSyBkXag3Gf3MM-0uLAU7CixAdlhJurY1BUQ",
   authDomain: "rr-reparacao-manager.firebaseapp.com",
   projectId: "rr-reparacao-manager",
   storageBucket: "rr-reparacao-manager.firebasestorage.app",
