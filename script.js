@@ -49,7 +49,19 @@ function createId(prefix) {
 }
 
 function money(value) {
-  return formatCurrency.format(Number(value) || 0);
+  return formatCurrency.format(parseDecimal(value));
+}
+
+function parseDecimal(value) {
+  const text = String(value ?? "").trim();
+  if (!text) return 0;
+  const normalized = text.includes(",") ? text.replace(/\./g, "").replace(",", ".") : text;
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function parseInteger(value) {
+  return Math.max(0, Math.trunc(parseDecimal(value)));
 }
 
 function formatDateBR(value) {
@@ -240,7 +252,7 @@ function getApprovedOrcamentos() {
 
 function getPecasCusto(orcamento) {
   const pecas = Array.isArray(orcamento.pecas) ? orcamento.pecas : [];
-  return pecas.reduce((sum, peca) => sum + (Number(peca.quantidade) || 0) * (Number(peca.custoUnitario) || 0), 0);
+  return pecas.reduce((sum, peca) => sum + parseInteger(peca.quantidade) * parseDecimal(peca.custoUnitario), 0);
 }
 
 function getFinancialSummary() {
@@ -484,16 +496,16 @@ function syncOrcamentoDrafts() {
   orcamentoPecasDraft = [...document.querySelectorAll("[data-peca-index]")].map((row) => ({
     id: row.dataset.pecaId || createId("pec"),
     nome: row.querySelector("[data-field='nome']").value.trim(),
-    quantidade: Number(row.querySelector("[data-field='quantidade']").value) || 0,
-    custoUnitario: Number(row.querySelector("[data-field='custoUnitario']").value) || 0,
-    valorUnitario: Number(row.querySelector("[data-field='valorUnitario']").value) || 0
+    quantidade: parseInteger(row.querySelector("[data-field='quantidade']").value),
+    custoUnitario: parseDecimal(row.querySelector("[data-field='custoUnitario']").value),
+    valorUnitario: parseDecimal(row.querySelector("[data-field='valorUnitario']").value)
   }));
 
   orcamentoServicosDraft = [...document.querySelectorAll("[data-servico-orcamento-index]")].map((row) => ({
     id: row.dataset.servicoId || createId("mao"),
     descricao: row.querySelector("[data-field='descricao']").value.trim(),
-    horas: Number(row.querySelector("[data-field='horas']").value) || 0,
-    valorHora: Number(row.querySelector("[data-field='valorHora']").value) || VALOR_HORA_PADRAO
+    horas: parseDecimal(row.querySelector("[data-field='horas']").value),
+    valorHora: parseDecimal(row.querySelector("[data-field='valorHora']").value) || VALOR_HORA_PADRAO
   }));
 }
 
@@ -505,10 +517,10 @@ function renderOrcamentoDrafts() {
   pecasContainer.innerHTML = orcamentoPecasDraft.map((peca, index) => `
     <div class="nested-item peca-item" data-peca-index="${index}" data-peca-id="${escapeHtml(peca.id)}">
       <label>Peça<input data-field="nome" value="${escapeHtml(peca.nome)}" placeholder="Ex: Pastilha de freio"></label>
-      <label>Qtd<input data-field="quantidade" type="number" min="0" step="0.01" value="${peca.quantidade}"></label>
+      <label>Qtd<input data-field="quantidade" type="number" min="0" step="1" value="${parseInteger(peca.quantidade)}"></label>
       <label>Custo unitário<input data-field="custoUnitario" type="number" min="0" step="0.01" value="${peca.custoUnitario || 0}"></label>
       <label>Venda unitária<input data-field="valorUnitario" type="number" min="0" step="0.01" value="${peca.valorUnitario}"></label>
-      <strong class="line-total">${money(Number(peca.quantidade) * Number(peca.valorUnitario))}</strong>
+      <strong class="line-total">${money(parseInteger(peca.quantidade) * parseDecimal(peca.valorUnitario))}</strong>
       <button class="btn btn-danger" type="button" onclick="removePeca(${index})">Remover</button>
     </div>
   `).join("");
@@ -516,9 +528,9 @@ function renderOrcamentoDrafts() {
   servicosContainer.innerHTML = orcamentoServicosDraft.map((servico, index) => `
     <div class="nested-item servico-orcamento-item" data-servico-orcamento-index="${index}" data-servico-id="${escapeHtml(servico.id)}">
       <label>Serviço<input data-field="descricao" value="${escapeHtml(servico.descricao)}" placeholder="Ex: Revisão de freios"></label>
-      <label>Horas<input data-field="horas" type="number" min="0" step="0.1" value="${servico.horas}"></label>
+      <label>Horas<input data-field="horas" type="number" min="0" step="0.01" value="${parseDecimal(servico.horas)}"></label>
       <label>Valor/hora<input data-field="valorHora" type="number" min="0" step="0.01" value="${servico.valorHora}"></label>
-      <strong class="line-total">${money(Number(servico.horas) * Number(servico.valorHora))}</strong>
+      <strong class="line-total">${money(parseDecimal(servico.horas) * parseDecimal(servico.valorHora))}</strong>
       <button class="btn btn-danger" type="button" onclick="removeServicoOrcamento(${index})">Remover</button>
     </div>
   `).join("");
@@ -541,9 +553,9 @@ function removeServicoOrcamento(index) {
 }
 
 function calculateOrcamentoTotals(pecas = orcamentoPecasDraft, servicos = orcamentoServicosDraft) {
-  const totalPecas = pecas.reduce((sum, peca) => sum + (Number(peca.quantidade) || 0) * (Number(peca.valorUnitario) || 0), 0);
-  const totalCustoPecas = pecas.reduce((sum, peca) => sum + (Number(peca.quantidade) || 0) * (Number(peca.custoUnitario) || 0), 0);
-  const totalServicos = servicos.reduce((sum, servico) => sum + (Number(servico.horas) || 0) * (Number(servico.valorHora) || 0), 0);
+  const totalPecas = pecas.reduce((sum, peca) => sum + parseInteger(peca.quantidade) * parseDecimal(peca.valorUnitario), 0);
+  const totalCustoPecas = pecas.reduce((sum, peca) => sum + parseInteger(peca.quantidade) * parseDecimal(peca.custoUnitario), 0);
+  const totalServicos = servicos.reduce((sum, servico) => sum + parseDecimal(servico.horas) * parseDecimal(servico.valorHora), 0);
   const total = totalPecas + totalServicos;
   return { totalPecas, totalCustoPecas, totalServicos, total, lucroEstimado: total - totalCustoPecas };
 }
@@ -551,7 +563,7 @@ function calculateOrcamentoTotals(pecas = orcamentoPecasDraft, servicos = orcame
 function updateOrcamentoPreview() {
   syncOrcamentoDrafts();
   const totals = calculateOrcamentoTotals();
-  const valorFinal = Number(getValue("orcamentoValorFinal")) || 0;
+  const valorFinal = parseDecimal(getValue("orcamentoValorFinal"));
   const totalFinal = valorFinal > 0 ? valorFinal : totals.total;
   setText("totalPecasPreview", money(totals.totalPecas));
   setText("totalCustoPecasPreview", money(totals.totalCustoPecas));
@@ -559,10 +571,10 @@ function updateOrcamentoPreview() {
   setText("totalOrcamentoPreview", money(totalFinal));
   setText("lucroOrcamentoPreview", money(totalFinal - totals.totalCustoPecas));
   document.querySelectorAll("[data-peca-index]").forEach((row, index) => {
-    row.querySelector(".line-total").textContent = money((orcamentoPecasDraft[index].quantidade || 0) * (orcamentoPecasDraft[index].valorUnitario || 0));
+    row.querySelector(".line-total").textContent = money(parseInteger(orcamentoPecasDraft[index].quantidade) * parseDecimal(orcamentoPecasDraft[index].valorUnitario));
   });
   document.querySelectorAll("[data-servico-orcamento-index]").forEach((row, index) => {
-    row.querySelector(".line-total").textContent = money((orcamentoServicosDraft[index].horas || 0) * (orcamentoServicosDraft[index].valorHora || 0));
+    row.querySelector(".line-total").textContent = money(parseDecimal(orcamentoServicosDraft[index].horas) * parseDecimal(orcamentoServicosDraft[index].valorHora));
   });
 }
 
@@ -575,7 +587,7 @@ function saveOrcamento(event) {
   const orcamentos = readData("orcamentos");
   const id = getValue("orcamentoId") || createId("orc");
   const existente = orcamentos.find((item) => item.id === id);
-  const valorFinalManual = Number(getValue("orcamentoValorFinal")) || 0;
+  const valorFinalManual = parseDecimal(getValue("orcamentoValorFinal"));
   const totalFinal = valorFinalManual > 0 ? valorFinalManual : totals.total;
   const orcamento = {
     id,
@@ -697,7 +709,7 @@ function buildOrcamentoPrintHtml(orcamento) {
         <h3>Peças</h3>
         <table class="print-table">
           <thead><tr><th>Item</th><th>Qtd</th><th>Valor unit.</th><th>Total</th></tr></thead>
-          <tbody>${pecas.map((peca) => `<tr><td>${escapeHtml(peca.nome)}</td><td class="right">${peca.quantidade}</td><td class="right">${money(peca.valorUnitario)}</td><td class="right">${money((peca.quantidade || 0) * (peca.valorUnitario || 0))}</td></tr>`).join("") || `<tr><td colspan="4">Sem peças informadas.</td></tr>`}</tbody>
+          <tbody>${pecas.map((peca) => `<tr><td>${escapeHtml(peca.nome)}</td><td class="right">${parseInteger(peca.quantidade)}</td><td class="right">${money(peca.valorUnitario)}</td><td class="right">${money(parseInteger(peca.quantidade) * parseDecimal(peca.valorUnitario))}</td></tr>`).join("") || `<tr><td colspan="4">Sem peças informadas.</td></tr>`}</tbody>
         </table>
       </section>
 
@@ -705,7 +717,7 @@ function buildOrcamentoPrintHtml(orcamento) {
         <h3>Serviços</h3>
         <table class="print-table">
           <thead><tr><th>Serviço</th><th>Horas</th><th>Valor/hora</th><th>Total</th></tr></thead>
-          <tbody>${servicos.map((servico) => `<tr><td>${escapeHtml(servico.descricao)}</td><td class="right">${servico.horas}</td><td class="right">${money(servico.valorHora)}</td><td class="right">${money((servico.horas || 0) * (servico.valorHora || 0))}</td></tr>`).join("") || `<tr><td colspan="4">Sem serviços informados.</td></tr>`}</tbody>
+          <tbody>${servicos.map((servico) => `<tr><td>${escapeHtml(servico.descricao)}</td><td class="right">${parseDecimal(servico.horas)}</td><td class="right">${money(servico.valorHora)}</td><td class="right">${money(parseDecimal(servico.horas) * parseDecimal(servico.valorHora))}</td></tr>`).join("") || `<tr><td colspan="4">Sem serviços informados.</td></tr>`}</tbody>
         </table>
       </section>
 
