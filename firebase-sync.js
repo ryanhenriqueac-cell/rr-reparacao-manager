@@ -226,7 +226,7 @@ function setAppLocked(locked) {
 
 function setUserStatus(email) {
   const status = document.getElementById("firebaseUserStatus");
-  if (status) status.textContent = email ? `Online: ${email}` : "";
+  if (status) status.textContent = email ? "Status: Online" : "";
   document.body.classList.toggle("firebase-logged-in", Boolean(email));
 }
 

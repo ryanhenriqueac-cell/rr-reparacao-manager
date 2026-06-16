@@ -918,9 +918,9 @@ td {
   z-index: 50;
   display: none;
   align-items: center;
-  gap: 8px;
-  max-width: min(340px, calc(100vw - 36px));
-  padding: 8px;
+  gap: 7px;
+  max-width: min(230px, calc(100vw - 36px));
+  padding: 7px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(7, 17, 31, 0.92);
@@ -929,9 +929,9 @@ td {
 }
 
 #firebaseUserBar .btn {
-  min-height: 38px;
-  padding: 8px 14px;
-  font-size: 14px;
+  min-height: 34px;
+  padding: 7px 12px;
+  font-size: 13px;
 }
 
 .auth-ready.firebase-logged-in #firebaseUserBar {
@@ -942,6 +942,7 @@ td {
   overflow: hidden;
   color: var(--muted);
   font-size: 12px;
+  font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
