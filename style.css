@@ -1261,6 +1261,10 @@ td {
   font-size: 17px;
 }
 
+.report-table-section {
+  margin-top: 16px;
+}
+
 .report-donut {
   position: relative;
   display: grid;
@@ -1560,6 +1564,118 @@ td {
   .print-totals div:last-child {
     background: #062e55 !important;
     color: #fff !important;
+  }
+
+  .finance-report-document {
+    padding: 10mm;
+  }
+
+  .finance-report-document .print-header {
+    margin-bottom: 10px;
+  }
+
+  .report-print-summary {
+    gap: 7px;
+    margin: 10px 0;
+  }
+
+  .report-print-summary div {
+    padding: 8px;
+  }
+
+  .report-print-summary span {
+    font-size: 9px;
+  }
+
+  .report-print-summary strong {
+    margin-top: 5px;
+    font-size: 13px;
+  }
+
+  .report-print-charts {
+    grid-template-columns: 0.78fr 1.22fr;
+    gap: 8px;
+    margin: 10px 0 12px;
+  }
+
+  .report-chart-card {
+    padding: 8px;
+  }
+
+  .report-chart-card h2,
+  .report-table-section h2 {
+    margin: 0 0 7px;
+    font-size: 12px;
+  }
+
+  .report-donut {
+    width: 104px;
+    margin: 4px auto 7px;
+  }
+
+  .report-donut::after {
+    inset: 22px;
+  }
+
+  .report-donut span {
+    max-width: 70px;
+    font-size: 10px;
+  }
+
+  .report-donut small,
+  .report-legend div,
+  .report-bars-legend,
+  .report-month-group small {
+    font-size: 8px;
+  }
+
+  .report-legend {
+    gap: 5px;
+  }
+
+  .report-bars-legend {
+    gap: 5px 8px;
+    margin-bottom: 6px;
+  }
+
+  .report-monthly-bars {
+    gap: 6px;
+    min-height: 104px;
+    overflow: visible;
+  }
+
+  .report-month-group {
+    grid-template-rows: 76px auto auto;
+    min-width: 46px;
+    gap: 3px;
+  }
+
+  .report-month-group div {
+    width: 44px;
+    height: 76px;
+    gap: 3px;
+    padding: 5px 4px 0;
+  }
+
+  .report-month-group span {
+    width: 6px;
+  }
+
+  .report-month-group strong {
+    font-size: 8px;
+  }
+
+  .report-table-section {
+    margin-top: 10px;
+    break-inside: avoid;
+  }
+
+  .report-transactions-section {
+    break-inside: auto;
+  }
+
+  .report-transactions-section tr {
+    break-inside: avoid;
   }
 }
 

@@ -1470,7 +1470,7 @@ function buildFinanceiroReportHtml(relatorio) {
         </div>
       </section>
 
-      <section>
+      <section class="report-table-section">
         <h2>Resultado por mês</h2>
         <table class="print-table">
           <thead><tr><th>Mês</th><th>Receitas</th><th>Custos</th><th>Despesas</th><th>Lucro</th></tr></thead>
@@ -1478,7 +1478,7 @@ function buildFinanceiroReportHtml(relatorio) {
         </table>
       </section>
 
-      <section>
+      <section class="report-table-section report-transactions-section">
         <h2>Lançamentos analisados</h2>
         <table class="print-table">
           <thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Categoria</th><th>Valor</th></tr></thead>
