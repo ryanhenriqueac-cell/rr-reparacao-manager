@@ -110,6 +110,12 @@ function formatPhoneBR(value) {
   return value || "";
 }
 
+function formatPlateBR(value) {
+  const text = String(value || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 7);
+  if (text.length <= 3) return text;
+  return `${text.slice(0, 3)}-${text.slice(3)}`;
+}
+
 function today() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -139,7 +145,7 @@ function normalizeCarro(carro) {
     modelo: carro.modelo || carro.nome || "",
     motor: carro.motor || "",
     ano: carro.ano || "",
-    placa: carro.placa || "",
+    placa: formatPlateBR(carro.placa),
     obs: carro.obs || ""
   };
 }
@@ -676,7 +682,7 @@ function syncClienteCarrosDraft() {
     modelo: row.querySelector("[data-field='modelo']").value.trim(),
     motor: row.querySelector("[data-field='motor']").value.trim(),
     ano: row.querySelector("[data-field='ano']").value.trim(),
-    placa: row.querySelector("[data-field='placa']").value.trim().toUpperCase(),
+    placa: formatPlateBR(row.querySelector("[data-field='placa']").value),
     obs: row.querySelector("[data-field='obs']").value.trim()
   }));
 }
@@ -691,7 +697,7 @@ function renderClienteCarrosDraft() {
       <label>Carro<input data-field="modelo" value="${escapeHtml(carro.modelo)}" placeholder="Ex: Civic"></label>
       <label>Motor<input data-field="motor" value="${escapeHtml(carro.motor)}" placeholder="Ex: 2.0 Flex"></label>
       <label>Ano<input data-field="ano" value="${escapeHtml(carro.ano)}" placeholder="Ex: 2019"></label>
-      <label>Placa<input data-field="placa" value="${escapeHtml(carro.placa)}" placeholder="ABC1D23"></label>
+      <label>Placa<input data-field="placa" value="${escapeHtml(formatPlateBR(carro.placa))}" placeholder="ABC-1D23" maxlength="8" oninput="this.value = formatPlateBR(this.value)"></label>
       <label>Observações<input data-field="obs" value="${escapeHtml(carro.obs)}" placeholder="Detalhes do carro"></label>
       <button class="btn btn-danger" type="button" onclick="removeCarroCliente(${index})">Remover</button>
     </div>
@@ -806,6 +812,34 @@ function blankServicoOrcamento() {
   return { id: createId("mao"), descricao: "", horas: 1, valorHora: VALOR_HORA_PADRAO };
 }
 
+function zeroInputClass(value) {
+  return parseDecimal(value) === 0 ? " zero-value" : "";
+}
+
+function moneyDraftInput(field, value) {
+  const numericValue = parseDecimal(value);
+  return `<input class="money-draft-input${zeroInputClass(numericValue)}" data-field="${field}" type="number" min="0" step="0.01" value="${numericValue}" onfocus="clearZeroInput(this)" onblur="restoreZeroInput(this)" oninput="markZeroInput(this)">`;
+}
+
+function clearZeroInput(input) {
+  if (parseDecimal(input.value) !== 0) return;
+  input.value = "";
+  input.classList.remove("zero-value");
+}
+
+function restoreZeroInput(input) {
+  if (String(input.value).trim()) {
+    markZeroInput(input);
+    return;
+  }
+  input.value = "0";
+  input.classList.add("zero-value");
+}
+
+function markZeroInput(input) {
+  input.classList.toggle("zero-value", parseDecimal(input.value) === 0);
+}
+
 function syncOrcamentoDrafts() {
   orcamentoPecasDraft = [...document.querySelectorAll("[data-peca-index]")].map((row) => ({
     id: row.dataset.pecaId || createId("pec"),
@@ -832,8 +866,8 @@ function renderOrcamentoDrafts() {
     <div class="nested-item peca-item" data-peca-index="${index}" data-peca-id="${escapeHtml(peca.id)}">
       <label>Peça<input data-field="nome" value="${escapeHtml(peca.nome)}" placeholder="Ex: Pastilha de freio"></label>
       <label>Qtd<input data-field="quantidade" type="number" min="0" step="1" value="${parseInteger(peca.quantidade)}"></label>
-      <label>Custo unitário<input data-field="custoUnitario" type="number" min="0" step="0.01" value="${peca.custoUnitario || 0}"></label>
-      <label>Venda unitária<input data-field="valorUnitario" type="number" min="0" step="0.01" value="${peca.valorUnitario}"></label>
+      <label>Custo unitário${moneyDraftInput("custoUnitario", peca.custoUnitario)}</label>
+      <label>Venda unitária${moneyDraftInput("valorUnitario", peca.valorUnitario)}</label>
       <strong class="line-total">${money(parseInteger(peca.quantidade) * parseDecimal(peca.valorUnitario))}</strong>
       <button class="btn btn-danger" type="button" onclick="removePeca(${index})">Remover</button>
     </div>
