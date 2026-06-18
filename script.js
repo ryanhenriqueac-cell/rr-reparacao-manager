@@ -1528,6 +1528,14 @@ function renderFinanceiroGraficos(relatorio) {
     { label: "Custos", valor: resumo.custos, color: "#f1c75b" },
     { label: "Despesas", valor: resumo.despesas, color: "#ef6262" }
   ];
+  const totalDonut = valoresDonut.reduce((sum, item) => sum + Math.max(item.valor, 0), 0);
+  let acumulado = 0;
+  const segmentos = valoresDonut.map((item) => {
+    const inicio = totalDonut ? (acumulado / totalDonut) * 360 : 0;
+    acumulado += Math.max(item.valor, 0);
+    const fim = totalDonut ? (acumulado / totalDonut) * 360 : 0;
+    return `${item.color} ${inicio}deg ${fim}deg`;
+  }).join(", ");
 
   byId("financeiroDonut").style.background = totalDonut
     ? `conic-gradient(${segmentos})`
