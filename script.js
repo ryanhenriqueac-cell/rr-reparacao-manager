@@ -1092,6 +1092,7 @@ function buildOrcamentoPrintHtml(orcamento) {
         </table>
       </section>
 
+      <h3 class="print-payment-title">Resumo e pagamento</h3>
       <section class="print-payment-row">
         <div class="print-totals">
         <div><span>Total peças</span><strong>${money(totals.totalPecas)}</strong></div>
