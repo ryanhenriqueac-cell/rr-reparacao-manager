@@ -1120,6 +1120,11 @@ td {
   margin: 10px 0 8px;
 }
 
+.print-closing-block {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
 .print-totals {
   width: 310px;
   border: 1px solid #d7dde6;
@@ -1543,6 +1548,11 @@ body.pdf-exporting #firebaseAuthShell {
   gap: 8px !important;
 }
 
+.pdf-export-clone .print-closing-block {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+
 .pdf-export-clone .print-totals {
   width: 265px !important;
 }
@@ -1614,6 +1624,7 @@ body.pdf-exporting #firebaseAuthShell {
   .print-table,
   .print-payment-title,
   .print-payment-row,
+  .print-closing-block,
   .print-totals,
   .pix-payment,
   .report-print-summary,

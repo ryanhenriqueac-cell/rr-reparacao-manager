@@ -1302,20 +1302,22 @@ function buildOrcamentoPrintHtml(orcamento) {
         </table>
       </section>
 
-      <h3 class="print-payment-title">Resumo e pagamento</h3>
-      <section class="print-payment-row">
-        <div class="print-totals">
-        <div><span>Total peças</span><strong>${money(totals.totalPecas)}</strong></div>
-        <div><span>Total serviços</span><strong>${money(totals.totalServicos)}</strong></div>
-        ${orcamento.valorFinalManual ? `<div><span>Total calculado</span><strong>${money(totals.total)}</strong></div>` : ""}
-        <div><span>Total geral</span><strong>${money(totalFinal)}</strong></div>
-        ${acrescimoPagamento > 0 ? `<div><span>Taxa de parcelamento</span><strong>+ ${money(acrescimoPagamento)}</strong></div><div><span>Total a pagar</span><strong>${money(totalComPagamento)}</strong></div>` : ""}
-        ${descontoPix > 0 ? `<div><span>Desconto Pix (3%)</span><strong>- ${money(descontoPix)}</strong></div><div><span>Total no Pix</span><strong>${money(totalPix)}</strong></div>` : ""}
-        </div>
-        ${buildPixPaymentHtml(orcamento, descontoPix > 0 ? totalPix : totalFinal)}
-      </section>
+      <section class="print-closing-block">
+        <h3 class="print-payment-title">Resumo e pagamento</h3>
+        <section class="print-payment-row">
+          <div class="print-totals">
+          <div><span>Total peças</span><strong>${money(totals.totalPecas)}</strong></div>
+          <div><span>Total serviços</span><strong>${money(totals.totalServicos)}</strong></div>
+          ${orcamento.valorFinalManual ? `<div><span>Total calculado</span><strong>${money(totals.total)}</strong></div>` : ""}
+          <div><span>Total geral</span><strong>${money(totalFinal)}</strong></div>
+          ${acrescimoPagamento > 0 ? `<div><span>Taxa de parcelamento</span><strong>+ ${money(acrescimoPagamento)}</strong></div><div><span>Total a pagar</span><strong>${money(totalComPagamento)}</strong></div>` : ""}
+          ${descontoPix > 0 ? `<div><span>Desconto Pix (3%)</span><strong>- ${money(descontoPix)}</strong></div><div><span>Total no Pix</span><strong>${money(totalPix)}</strong></div>` : ""}
+          </div>
+          ${buildPixPaymentHtml(orcamento, descontoPix > 0 ? totalPix : totalFinal)}
+        </section>
 
-      <footer class="print-footer">Orçamento sujeito à aprovação. Valores podem mudar após desmontagem ou diagnóstico complementar.</footer>
+        <footer class="print-footer">Orçamento sujeito à aprovação. Valores podem mudar após desmontagem ou diagnóstico complementar.</footer>
+      </section>
     </article>
   `;
 }
