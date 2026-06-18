@@ -1593,13 +1593,18 @@ td {
   }
 
   .report-print-charts {
-    grid-template-columns: 0.78fr 1.22fr;
-    gap: 8px;
-    margin: 10px 0 12px;
+    grid-template-columns: minmax(62mm, 0.82fr) minmax(92mm, 1.18fr);
+    gap: 10px;
+    margin: 12px 0 14px;
+    align-items: stretch;
   }
 
   .report-chart-card {
-    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    min-height: 62mm;
+    padding: 10px;
+    overflow: hidden;
   }
 
   .report-chart-card h2,
@@ -1609,17 +1614,17 @@ td {
   }
 
   .report-donut {
-    width: 104px;
-    margin: 4px auto 7px;
+    width: 132px;
+    margin: 6px auto 9px;
   }
 
   .report-donut::after {
-    inset: 22px;
+    inset: 27px;
   }
 
   .report-donut span {
-    max-width: 70px;
-    font-size: 10px;
+    max-width: 82px;
+    font-size: 11px;
   }
 
   .report-donut small,
@@ -1634,31 +1639,34 @@ td {
   }
 
   .report-bars-legend {
-    gap: 5px 8px;
-    margin-bottom: 6px;
+    gap: 6px 10px;
+    margin-bottom: 8px;
   }
 
   .report-monthly-bars {
-    gap: 6px;
-    min-height: 104px;
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    gap: 8px;
+    min-height: 122px;
     overflow: visible;
   }
 
   .report-month-group {
-    grid-template-rows: 76px auto auto;
-    min-width: 46px;
-    gap: 3px;
+    grid-template-rows: 92px auto auto;
+    min-width: 54px;
+    gap: 4px;
   }
 
   .report-month-group div {
-    width: 44px;
-    height: 76px;
-    gap: 3px;
-    padding: 5px 4px 0;
+    width: 52px;
+    height: 92px;
+    gap: 4px;
+    padding: 6px 5px 0;
   }
 
   .report-month-group span {
-    width: 6px;
+    width: 7px;
   }
 
   .report-month-group strong {
