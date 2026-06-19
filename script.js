@@ -1190,7 +1190,7 @@ function initOrcamentoPrint() {
   if (printButton) {
     const clienteNome = sanitizePrintTitle(getClienteNome(orcamento?.clienteId)).toUpperCase();
     const title = sanitizePrintTitle(`RR - Orçamento do Serviço Automotivo ${clienteNome}`);
-    printButton.addEventListener("click", () => printDocument(title));
+    printButton.addEventListener("click", () => handlePrintDocumentAction(title));
   }
 
   if (!orcamento) {
@@ -1241,7 +1241,7 @@ function renderPublicOrcamentoData(rawData) {
     };
     const clienteNome = sanitizePrintTitle(data.cliente?.nome).toUpperCase();
     const title = sanitizePrintTitle(`RR - Orçamento do Serviço Automotivo ${clienteNome}`);
-    printButton?.addEventListener("click", () => printDocument(title));
+    printButton?.addEventListener("click", () => handlePrintDocumentAction(title));
     root.innerHTML = buildOrcamentoPrintHtml(orcamento);
   } catch (error) {
     showPublicOrcamentoError("Confira se o link recebido está completo.");
@@ -1603,6 +1603,38 @@ function printDocument(title) {
   setTimeout(restoreTitle, 30000);
 }
 
+function isMobilePrintView() {
+  return window.matchMedia("(max-width: 760px)").matches;
+}
+
+async function sharePrintDocument(title) {
+  const shareTitle = sanitizePrintTitle(title) || document.title;
+  const shareData = {
+    title: shareTitle,
+    text: "Segue o documento da RR Reparacao Manager.",
+    url: window.location.href
+  };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+      return;
+    } catch (error) {
+      if (error?.name === "AbortError") return;
+    }
+  }
+
+  printDocument(title);
+}
+
+function handlePrintDocumentAction(title) {
+  if (isMobilePrintView()) {
+    sharePrintDocument(title);
+    return;
+  }
+  printDocument(title);
+}
+
 function setupMobilePrintButtonLabel() {
   const printButton = byId("printButton");
   if (!printButton) return;
@@ -1625,7 +1657,7 @@ function initFinanceiroPrint() {
 
   if (printButton) {
     const title = sanitizePrintTitle(`RR - Relatório financeiro mês ${getMonthNameBR(start || end)}`);
-    printButton.addEventListener("click", () => printDocument(title));
+    printButton.addEventListener("click", () => handlePrintDocumentAction(title));
   }
   root.innerHTML = buildFinanceiroReportHtml(relatorio);
 }
