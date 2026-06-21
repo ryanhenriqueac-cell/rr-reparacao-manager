@@ -9,6 +9,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -489,6 +490,32 @@ function showAuthStatusModal(title, message) {
   });
 }
 
+function showAuthConfirmModal(title, message) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "auth-modal-overlay";
+    overlay.innerHTML = `
+      <div class="auth-modal">
+        <img src="assets/logo-rr.png" alt="RR Reparação Automotiva">
+        <h2>${escapeHtml(title)}</h2>
+        <p>${escapeHtml(message)}</p>
+        <div class="auth-modal-actions">
+          <button class="btn btn-muted" type="button" data-confirm-value="false">Cancelar</button>
+          <button class="btn btn-danger" type="button" data-confirm-value="true">Excluir</button>
+        </div>
+      </div>
+    `;
+    overlay.querySelectorAll("[data-confirm-value]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const confirmed = button.dataset.confirmValue === "true";
+        overlay.remove();
+        resolve(confirmed);
+      });
+    });
+    document.body.appendChild(overlay);
+  });
+}
+
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
@@ -568,6 +595,7 @@ function renderAdminWorkspaceList() {
           <span class="admin-access-status ${statusClass}">${getAccessStatusText(accessStatus)}</span>
           <button class="btn btn-primary" type="button" data-access-action="${ACCESS_STATUS.ACTIVE}" data-workspace-id="${escapeHtml(workspace.id)}">Liberar acesso</button>
           <button class="btn btn-danger" type="button" data-access-action="${ACCESS_STATUS.BLOCKED}" data-workspace-id="${escapeHtml(workspace.id)}">Bloquear acesso</button>
+          <button class="btn btn-muted" type="button" data-delete-workspace="${escapeHtml(workspace.id)}" data-workspace-email="${escapeHtml(email)}">Excluir cadastro</button>
         </div>
       </div>
     `;
@@ -578,6 +606,9 @@ function renderAdminWorkspaceList() {
   });
   list.querySelectorAll("[data-access-action]").forEach((button) => {
     button.addEventListener("click", () => updateWorkspaceAccess(button.dataset.workspaceId, button.dataset.accessAction));
+  });
+  list.querySelectorAll("[data-delete-workspace]").forEach((button) => {
+    button.addEventListener("click", () => deleteWorkspace(button.dataset.deleteWorkspace, button.dataset.workspaceEmail));
   });
 }
 
@@ -595,6 +626,17 @@ async function updateWorkspaceAccess(workspaceId, status) {
   }, { merge: true });
   const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
   if (workspace) workspace.accessStatus = status;
+  renderAdminWorkspaceList();
+}
+
+async function deleteWorkspace(workspaceId, email) {
+  const confirmed = await showAuthConfirmModal(
+    "Excluir cadastro",
+    `Deseja remover ${email || "este cadastro"} do painel admin? Essa ação apaga os dados salvos desse cadastro no Firestore.`
+  );
+  if (!confirmed) return;
+  await deleteDoc(doc(db, "workspaces", workspaceId));
+  adminWorkspaces = adminWorkspaces.filter((item) => item.id !== workspaceId);
   renderAdminWorkspaceList();
 }
 

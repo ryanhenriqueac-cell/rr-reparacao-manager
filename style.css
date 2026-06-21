@@ -1091,6 +1091,13 @@ td {
   color: var(--muted);
 }
 
+.auth-modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
 .password-field {
   position: relative;
 }
