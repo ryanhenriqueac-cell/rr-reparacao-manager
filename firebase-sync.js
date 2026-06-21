@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 import {
   createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
   getAuth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -178,9 +179,11 @@ function bindAuthEvents() {
 }
 
 async function login() {
-  const email = document.getElementById("firebaseEmail").value.trim();
+  const emailInput = document.getElementById("firebaseEmail");
+  const email = normalizeEmail(emailInput.value);
   const password = document.getElementById("firebasePassword").value;
   try {
+    emailInput.value = email;
     showAuthMessage("Entrando...");
     await signInWithEmailAndPassword(auth, email, password);
     saveRememberedLogin(email, password);
@@ -190,10 +193,21 @@ async function login() {
 }
 
 async function createAccount() {
-  const email = document.getElementById("firebaseEmail").value.trim();
+  const emailInput = document.getElementById("firebaseEmail");
+  const email = normalizeEmail(emailInput.value);
   const password = document.getElementById("firebasePassword").value;
   try {
+    emailInput.value = email;
+    if (!email) {
+      showAuthMessage("Informe um e-mail para criar o acesso.");
+      return;
+    }
     showAuthMessage("Criando acesso...");
+    const existingMethods = await fetchSignInMethodsForEmail(auth, email);
+    if (existingMethods.length) {
+      showAuthMessage("Este e-mail já tem acesso. Use Entrar ou recupere a senha no Firebase.");
+      return;
+    }
     const credential = await createUserWithEmailAndPassword(auth, email, password);
     currentUser = credential.user;
     activeWorkspaceId = getWorkspaceId(currentUser) || currentUser.uid;
