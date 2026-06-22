@@ -32,7 +32,8 @@ const DOCUMENT_BRANDING_PATCHES = {
     logoUrl: DEFAULT_DOCUMENT_BRANDING.logoUrl
   },
   "nicolylmrocha@gmail.com": {
-    tagline: "Manutenção especializada | Paixão por carros"
+    tagline: "Manutenção especializada | Paixão por carros",
+    logoUrl: "assets/logo-rr-iphones.png"
   }
 };
 
