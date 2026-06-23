@@ -1169,6 +1169,30 @@ td {
   font-size: 13px;
 }
 
+
+#firebaseLandingReturn {
+  position: fixed;
+  left: 23px;
+  bottom: 76px;
+  z-index: 50;
+  display: none;
+  width: min(286px, calc(100vw - 46px));
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.auth-ready.firebase-logged-in #firebaseLandingReturn {
+  display: inline-flex;
+}
+
+body[data-page="orcamento-print"] #firebaseLandingReturn,
+body[data-page="orcamento-publico"] #firebaseLandingReturn,
+body[data-page="financeiro-print"] #firebaseLandingReturn {
+  display: none !important;
+}
+
 #firebaseUserBar {
   position: fixed;
   left: 18px;
@@ -1191,6 +1215,7 @@ td {
   padding: 7px 12px;
   font-size: 13px;
 }
+
 
 .auth-ready.firebase-logged-in #firebaseUserBar {
   display: flex;
@@ -2380,7 +2405,9 @@ td {
   }
 
   body[data-page="orcamento-print"] #firebaseUserBar,
-  body[data-page="orcamento-publico"] #firebaseUserBar {
+
+
+#firebaseUserBar {
     display: none !important;
   }
 }
@@ -2575,7 +2602,8 @@ td {
     overflow-wrap: anywhere;
   }
 
-  body[data-page="financeiro-print"] #firebaseUserBar {
+
+#firebaseUserBar {
     display: none !important;
   }
 }
@@ -3034,7 +3062,8 @@ td {
     max-width: 100%;
   }
 
-  #firebaseUserBar {
+
+#firebaseUserBar {
     left: auto;
     right: 12px;
     bottom: calc(env(safe-area-inset-bottom, 0px) + 76px);
@@ -5222,7 +5251,8 @@ td {
     width: 100%;
   }
 
-  #firebaseUserBar {
+
+#firebaseUserBar {
     max-width: 172px;
   }
 }

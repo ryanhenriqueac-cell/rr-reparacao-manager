@@ -182,7 +182,7 @@ function buildAuthShell() {
         </label>
         <button class="btn btn-primary" type="submit">Entrar</button>
         <button class="btn btn-muted" type="button" id="firebaseCreateAccount">Criar acesso</button>
-        <a class="btn btn-ghost" href="index.html">Voltar para landing</a>
+        <a class="btn btn-ghost" href="index.html">Voltar &agrave; p&aacute;gina principal</a>
       </form>
       <form id="firebaseRegisterForm" class="auth-register-form" ${isRegisterPage ? "" : "hidden"}>
         <div class="auth-register-grid">
@@ -227,7 +227,7 @@ function buildAuthShell() {
           </label>
         </div>
         <div class="auth-register-actions">
-          <a class="btn btn-ghost" href="index.html">Voltar para landing</a>
+          <a class="btn btn-ghost" href="index.html">Voltar &agrave; p&aacute;gina principal</a>
           <button class="btn btn-muted" type="button" id="firebaseBackToLogin">Voltar</button>
           <button class="btn btn-primary" type="submit">Salvar cadastro</button>
         </div>
@@ -261,6 +261,12 @@ function buildAuthShell() {
   `;
   document.body.appendChild(adminShell);
 
+  const landingReturn = document.createElement("a");
+  landingReturn.id = "firebaseLandingReturn";
+  landingReturn.className = "btn btn-muted";
+  landingReturn.href = "index.html";
+  landingReturn.textContent = "Voltar à página principal";
+  document.body.appendChild(landingReturn);
   const bar = document.createElement("div");
   bar.id = "firebaseUserBar";
   bar.innerHTML = `
