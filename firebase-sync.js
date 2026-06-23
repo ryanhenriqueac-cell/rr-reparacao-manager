@@ -182,6 +182,7 @@ function buildAuthShell() {
         </label>
         <button class="btn btn-primary" type="submit">Entrar</button>
         <button class="btn btn-muted" type="button" id="firebaseCreateAccount">Criar acesso</button>
+        <a class="btn btn-ghost" href="index.html">Voltar para landing</a>
       </form>
       <form id="firebaseRegisterForm" class="auth-register-form" ${isRegisterPage ? "" : "hidden"}>
         <div class="auth-register-grid">
@@ -226,6 +227,7 @@ function buildAuthShell() {
           </label>
         </div>
         <div class="auth-register-actions">
+          <a class="btn btn-ghost" href="index.html">Voltar para landing</a>
           <button class="btn btn-muted" type="button" id="firebaseBackToLogin">Voltar</button>
           <button class="btn btn-primary" type="submit">Salvar cadastro</button>
         </div>
